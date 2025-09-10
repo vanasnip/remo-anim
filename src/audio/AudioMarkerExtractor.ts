@@ -1,6 +1,7 @@
 /**
- * Audio Marker Extractor using Essentia.js
+ * Audio Marker Extractor with fallback implementation
  * Extracts beats, onsets, and other musical markers from audio
+ * Uses Essentia.js when available, falls back to Web Audio API analysis
  */
 
 import type {
@@ -11,13 +12,10 @@ import type {
   RhythmicPattern,
 } from "./types";
 
-// @ts-ignore - Essentia.js doesn't have TypeScript definitions
-import Essentia from "essentia.js";
-import type { EssentiaWASM } from "essentia.js";
-
 export class AudioMarkerExtractor {
-  private essentia: EssentiaWASM | null = null;
+  private essentia: any = null;
   private isInitialized = false;
+  private useEssentia = false;
   private config: AudioAnalysisConfig;
 
   constructor(config?: Partial<AudioAnalysisConfig>) {
@@ -50,20 +48,32 @@ export class AudioMarkerExtractor {
   }
 
   /**
-   * Initialize Essentia.js WASM module
+   * Initialize audio analysis engine with fallback
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
-      // Initialize Essentia.js
-      const EssentiaClass = (Essentia as any).Essentia || Essentia;
-      this.essentia = new EssentiaClass();
+      // Try to load Essentia.js
+      try {
+        const Essentia = await import("essentia.js");
+        const EssentiaClass = (Essentia as any).Essentia || Essentia.default || Essentia;
+        this.essentia = new EssentiaClass();
+        this.useEssentia = true;
+        console.log("Essentia.js initialized successfully");
+      } catch (essentiaError) {
+        console.warn("Essentia.js not available, using fallback implementation:", essentiaError);
+        this.useEssentia = false;
+      }
+
       this.isInitialized = true;
-      console.log("Essentia.js initialized successfully");
+      console.log(`Audio analysis initialized (${this.useEssentia ? "Essentia.js" : "Fallback"})`);
     } catch (error) {
-      console.error("Failed to initialize Essentia.js:", error);
-      throw new Error("Failed to initialize audio analysis engine");
+      console.error("Failed to initialize audio analysis engine:", error);
+      // Don't throw, use fallback implementation
+      this.isInitialized = true;
+      this.useEssentia = false;
+      console.log("Using fallback audio analysis implementation");
     }
   }
 
@@ -74,16 +84,44 @@ export class AudioMarkerExtractor {
     audioBuffer: AudioBuffer,
     sampleRate: number = 44100,
   ): Promise<AudioMarkers> {
-    if (!this.isInitialized || !this.essentia) {
+    if (!this.isInitialized) {
       await this.initialize();
-    }
-
-    if (!this.essentia) {
-      throw new Error("Essentia.js not initialized");
     }
 
     // Convert AudioBuffer to mono array
     const audioData = this.getMonoAudioData(audioBuffer);
+
+    const markers: AudioMarkers = {
+      beats: [],
+      onsets: [],
+      downbeats: [],
+      patterns: [],
+      harmonicEvents: [],
+    };
+
+    try {
+      if (this.useEssentia && this.essentia) {
+        return await this.extractMarkersWithEssentia(audioData, sampleRate);
+      } else {
+        return await this.extractMarkersWithFallback(audioData, sampleRate, audioBuffer);
+      }
+    } catch (error) {
+      console.error("Error extracting markers:", error);
+      // Fallback to simple implementation
+      return await this.extractMarkersWithFallback(audioData, sampleRate, audioBuffer);
+    }
+  }
+
+  /**
+   * Extract markers using Essentia.js
+   */
+  private async extractMarkersWithEssentia(
+    audioData: Float32Array,
+    sampleRate: number,
+  ): Promise<AudioMarkers> {
+    if (!this.essentia) {
+      throw new Error("Essentia.js not available");
+    }
 
     // Convert to Essentia vector format
     const audioVector = this.essentia.arrayToVector(audioData);
@@ -99,7 +137,7 @@ export class AudioMarkerExtractor {
     try {
       // Extract beats if enabled
       if (this.config.beatTracking.enabled) {
-        const beatData = this.extractBeats(audioVector, sampleRate);
+        const beatData = this.extractBeatsEssentia(audioVector, sampleRate);
         markers.beats = beatData.beats;
         markers.downbeats = beatData.downbeats;
         markers.bpm = beatData.bpm;
@@ -107,7 +145,7 @@ export class AudioMarkerExtractor {
 
       // Extract onsets if enabled
       if (this.config.onsetDetection.enabled) {
-        markers.onsets = this.extractOnsets(audioVector, sampleRate);
+        markers.onsets = this.extractOnsetsEssentia(audioVector, sampleRate);
       }
 
       // Extract harmonic markers if enabled
@@ -128,7 +166,6 @@ export class AudioMarkerExtractor {
 
       return markers;
     } catch (error) {
-      console.error("Error extracting markers:", error);
       // Clean up on error
       audioVector.delete();
       throw error;
@@ -136,9 +173,56 @@ export class AudioMarkerExtractor {
   }
 
   /**
+   * Extract markers using fallback Web Audio API implementation
+   */
+  private async extractMarkersWithFallback(
+    audioData: Float32Array,
+    sampleRate: number,
+    audioBuffer: AudioBuffer,
+  ): Promise<AudioMarkers> {
+    console.log("Using fallback audio analysis implementation");
+
+    const markers: AudioMarkers = {
+      beats: [],
+      onsets: [],
+      downbeats: [],
+      patterns: [],
+      harmonicEvents: [],
+    };
+
+    // Extract beats if enabled
+    if (this.config.beatTracking.enabled) {
+      const beatData = this.extractBeatsFallback(audioData, sampleRate);
+      markers.beats = beatData.beats;
+      markers.downbeats = beatData.downbeats;
+      markers.bpm = beatData.bpm;
+    }
+
+    // Extract onsets if enabled
+    if (this.config.onsetDetection.enabled) {
+      markers.onsets = this.extractOnsetsFallback(audioData, sampleRate);
+    }
+
+    // Extract harmonic markers if enabled
+    if (this.config.harmonicAnalysis.enabled) {
+      markers.harmonicEvents = this.extractHarmonicMarkers(
+        audioData,
+        sampleRate,
+      );
+    }
+
+    // Detect patterns if enabled
+    if (this.config.patternDetection.enabled && markers.beats.length > 0) {
+      markers.patterns = this.detectPatterns(markers.beats);
+    }
+
+    return markers;
+  }
+
+  /**
    * Extract beat positions using Essentia's BeatTrackerMultiFeature
    */
-  private extractBeats(
+  private extractBeatsEssentia(
     audioVector: any,
     sampleRate: number,
   ): {
@@ -194,9 +278,99 @@ export class AudioMarkerExtractor {
   }
 
   /**
-   * Extract onset positions (when new sounds/notes begin)
+   * Fallback beat extraction using simple energy-based analysis
    */
-  private extractOnsets(
+  private extractBeatsFallback(
+    audioData: Float32Array,
+    sampleRate: number,
+  ): {
+    beats: TimelineMarker[];
+    downbeats: TimelineMarker[];
+    bpm: number;
+  } {
+    const beats: TimelineMarker[] = [];
+    const windowSize = 1024;
+    const hopSize = 512;
+    const minBeatInterval = 60 / 180; // 180 BPM max
+    const maxBeatInterval = 60 / 60;  // 60 BPM min
+
+    // Calculate energy envelope
+    const energyEnvelope: number[] = [];
+    for (let i = 0; i < audioData.length - windowSize; i += hopSize) {
+      let energy = 0;
+      for (let j = 0; j < windowSize; j++) {
+        const sample = audioData[i + j];
+        energy += sample * sample;
+      }
+      energyEnvelope.push(Math.sqrt(energy / windowSize));
+    }
+
+    // Find energy peaks (potential beats)
+    const threshold = this.calculateEnergyThreshold(energyEnvelope);
+    const peaks: number[] = [];
+    
+    for (let i = 1; i < energyEnvelope.length - 1; i++) {
+      const current = energyEnvelope[i];
+      const prev = energyEnvelope[i - 1];
+      const next = energyEnvelope[i + 1];
+      
+      if (current > prev && current > next && current > threshold) {
+        const timeInSeconds = (i * hopSize) / sampleRate;
+        peaks.push(timeInSeconds);
+      }
+    }
+
+    // Filter peaks based on minimum beat interval
+    let lastBeatTime = -1;
+    for (const peakTime of peaks) {
+      if (lastBeatTime === -1 || peakTime - lastBeatTime >= minBeatInterval) {
+        beats.push({
+          time: peakTime,
+          type: "beat",
+          confidence: 0.7,
+          strength: 0.8,
+        });
+        lastBeatTime = peakTime;
+      }
+    }
+
+    // Calculate BPM from beat intervals
+    let bpm = 120; // Default BPM
+    if (beats.length > 1) {
+      const intervals = [];
+      for (let i = 1; i < beats.length; i++) {
+        intervals.push(beats[i].time - beats[i - 1].time);
+      }
+      const averageInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      bpm = Math.max(60, Math.min(180, 60 / averageInterval));
+    }
+
+    // Generate downbeats (every 4th beat in 4/4 time)
+    const downbeats: TimelineMarker[] = [];
+    for (let i = 0; i < beats.length; i += 4) {
+      downbeats.push({
+        ...beats[i],
+        type: "downbeat",
+      });
+    }
+
+    console.log(`Fallback beat detection found ${beats.length} beats, BPM: ${Math.round(bpm)}`);
+    return { beats, downbeats, bpm };
+  }
+
+  /**
+   * Calculate energy threshold for peak detection
+   */
+  private calculateEnergyThreshold(energyEnvelope: number[]): number {
+    const sorted = [...energyEnvelope].sort((a, b) => a - b);
+    const percentile90 = sorted[Math.floor(sorted.length * 0.9)];
+    return percentile90 * 0.7; // 70% of 90th percentile
+  }
+
+  /**
+   * Extract onset positions using Essentia.js
+   */
+  private extractOnsetsEssentia(
     audioVector: any,
     sampleRate: number,
   ): TimelineMarker[] {
@@ -247,6 +421,69 @@ export class AudioMarkerExtractor {
     onsetTimes.delete();
 
     return onsets;
+  }
+
+  /**
+   * Fallback onset detection using spectral flux
+   */
+  private extractOnsetsFallback(
+    audioData: Float32Array,
+    sampleRate: number,
+  ): TimelineMarker[] {
+    const onsets: TimelineMarker[] = [];
+    const windowSize = 1024;
+    const hopSize = 512;
+    const threshold = this.config.onsetDetection.threshold || 0.3;
+
+    // Calculate spectral flux (simplified)
+    const spectralFlux: number[] = [];
+    let prevSpectralEnergy = 0;
+
+    for (let i = 0; i < audioData.length - windowSize; i += hopSize) {
+      // Calculate current window's spectral energy
+      let currentSpectralEnergy = 0;
+      for (let j = 0; j < windowSize; j++) {
+        const sample = audioData[i + j];
+        currentSpectralEnergy += sample * sample;
+      }
+      currentSpectralEnergy = Math.sqrt(currentSpectralEnergy / windowSize);
+
+      // Calculate flux as positive increase in energy
+      const flux = Math.max(0, currentSpectralEnergy - prevSpectralEnergy);
+      spectralFlux.push(flux);
+      prevSpectralEnergy = currentSpectralEnergy;
+    }
+
+    // Find onset peaks in spectral flux
+    const fluxThreshold = this.calculateSpectralFluxThreshold(spectralFlux);
+    
+    for (let i = 1; i < spectralFlux.length - 1; i++) {
+      const current = spectralFlux[i];
+      const prev = spectralFlux[i - 1];
+      const next = spectralFlux[i + 1];
+      
+      if (current > prev && current > next && current > fluxThreshold) {
+        const timeInSeconds = (i * hopSize) / sampleRate;
+        onsets.push({
+          time: timeInSeconds,
+          type: "onset",
+          confidence: Math.min(1.0, current / fluxThreshold),
+          strength: current / fluxThreshold,
+        });
+      }
+    }
+
+    console.log(`Fallback onset detection found ${onsets.length} onsets`);
+    return onsets;
+  }
+
+  /**
+   * Calculate spectral flux threshold for onset detection
+   */
+  private calculateSpectralFluxThreshold(spectralFlux: number[]): number {
+    const sorted = [...spectralFlux].sort((a, b) => a - b);
+    const percentile80 = sorted[Math.floor(sorted.length * 0.8)];
+    return percentile80 * 0.6; // 60% of 80th percentile
   }
 
   /**

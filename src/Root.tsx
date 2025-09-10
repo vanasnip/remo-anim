@@ -312,7 +312,7 @@ Welcome to coding!`,
 				id="AudioTriggeredContent-Basic"
 				component={() => (
 					<AudioTriggeredContent 
-						audioSrc="audio/sample-beat.mp3"
+						audioSrc="audio/sample-beat.wav"
 						audioStartFrame={0}
 					/>
 				)}
@@ -325,7 +325,7 @@ Welcome to coding!`,
 					audioStartFrame: z.number().optional(),
 				})}
 				defaultProps={{
-					audioSrc: "audio/sample-beat.mp3",
+					audioSrc: "audio/sample-beat.wav",
 					audioStartFrame: 0,
 				}}
 			/>
@@ -333,7 +333,7 @@ Welcome to coding!`,
 				id="RhythmVisualization-Full"
 				component={() => (
 					<RhythmVisualization 
-						audioSrc="audio/sample-beat.mp3"
+						audioSrc="audio/sample-beat.wav"
 					/>
 				)}
 				durationInFrames={1800} // 60 seconds for full rhythm visualization
@@ -344,14 +344,14 @@ Welcome to coding!`,
 					audioSrc: z.string().optional(),
 				})}
 				defaultProps={{
-					audioSrc: "audio/sample-beat.mp3",
+					audioSrc: "audio/sample-beat.wav",
 				}}
 			/>
 			<Composition
 				id="EmojiRhythm-Fun"
 				component={() => (
 					<EmojiRhythm 
-						audioSrc="audio/sample-beat.mp3"
+						audioSrc="audio/sample-beat.wav"
 					/>
 				)}
 				durationInFrames={900} // 30 seconds for emoji rhythm demo
@@ -362,7 +362,7 @@ Welcome to coding!`,
 					audioSrc: z.string(),
 				})}
 				defaultProps={{
-					audioSrc: "audio/sample-beat.mp3",
+					audioSrc: "audio/sample-beat.wav",
 				}}
 			/>
 		</>

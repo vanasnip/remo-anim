@@ -38,7 +38,7 @@ interface RhythmVisualizationProps {
  * Main rhythm visualization composition
  */
 export const RhythmVisualization: React.FC<RhythmVisualizationProps> = ({
-  audioSrc = "audio/sample-beat.mp3", // Default audio file
+  audioSrc = "audio/sample-beat.wav", // Default audio file
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
