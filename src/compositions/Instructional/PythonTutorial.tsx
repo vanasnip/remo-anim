@@ -74,7 +74,7 @@ class SineWaveAnimation(Scene):
         startLine: 17,
         highlights: [2, 5, 6, 7],
       },
-      manimVideo: "assets/manim/sine_preview.mp4",
+      manimVideo: "assets/manim/SineWaveAnimation_latest.mp4",
     },
     {
       title: "Animate the Creation",
@@ -155,7 +155,7 @@ File ready at: media/videos/sine_wave/480p15/SineWaveAnimation.mp4`,
         startLine: 45,
         highlights: [5, 6, 7, 20, 21],
       },
-      manimVideo: "assets/manim/sine_animated.mp4",
+      manimVideo: "assets/manim/SineWaveAnimation_latest.mp4",
       tipText:
         "always_redraw creates dynamic objects that update automatically",
     },
