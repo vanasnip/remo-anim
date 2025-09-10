@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { spring, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
+import { spring, useCurrentFrame, useVideoConfig, interpolate, Video } from 'remotion';
 import { VideoPreviewProps, ManimCategory } from '../types';
 
 /**
@@ -256,17 +256,15 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
         <div style={videoContainerStyles}>
           <div style={videoPlayerStyles}>
             {isVideoLoaded ? (
-              <video
+              <Video
                 src={`/assets/manim/${video.filename}`}
-                controls
-                autoPlay
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'contain',
                 }}
-                onLoadStart={() => setIsVideoLoaded(false)}
-                onCanPlay={() => setIsVideoLoaded(true)}
+                loop
+                muted
               />
             ) : (
               <div style={{
