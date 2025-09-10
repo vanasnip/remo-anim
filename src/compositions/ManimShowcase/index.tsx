@@ -30,6 +30,16 @@ export const ManimShowcase: React.FC<ManimShowcaseProps> = ({
   showSearch = true,
   showFilters = true,
 }) => {
+  // Category colors for hover preview (moved to top to fix initialization error)
+  const categoryColors: Record<ManimCategory, string> = {
+    [ManimCategory.GEOMETRY]: '#3498db',
+    [ManimCategory.ALGEBRA]: '#e74c3c', 
+    [ManimCategory.CALCULUS]: '#2ecc71',
+    [ManimCategory.TRIGONOMETRY]: '#9b59b6',
+    [ManimCategory.PHYSICS]: '#f39c12',
+    [ManimCategory.GENERAL]: '#95a5a6',
+  };
+
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -457,14 +467,4 @@ export const ManimShowcase: React.FC<ManimShowcaseProps> = ({
       )}
     </div>
   );
-
-  // Category colors for hover preview
-  const categoryColors: Record<ManimCategory, string> = {
-    [ManimCategory.GEOMETRY]: '#3498db',
-    [ManimCategory.ALGEBRA]: '#e74c3c', 
-    [ManimCategory.CALCULUS]: '#2ecc71',
-    [ManimCategory.TRIGONOMETRY]: '#9b59b6',
-    [ManimCategory.PHYSICS]: '#f39c12',
-    [ManimCategory.GENERAL]: '#95a5a6',
-  };
 };
