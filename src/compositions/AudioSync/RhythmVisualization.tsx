@@ -454,17 +454,33 @@ const DownbeatParticles: React.FC<{
 
 /**
  * Enhanced emoji rhythm with phase awareness
+ * Standalone component that works without required props
  */
 export const EmojiRhythm: React.FC<{ 
   audioSrc?: string;
-  phase: number;
-  hue: number;
-}> = ({ audioSrc = "synthetic", phase, hue }) => {
+  phase?: number;
+  hue?: number;
+}> = ({ 
+  audioSrc = "synthetic", 
+  phase: providedPhase,
+  hue: providedHue
+}) => {
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
+  
+  // Calculate dynamic phase based on time if not provided
+  const timeInSeconds = frame / fps;
+  const calculatedPhase = Math.floor(timeInSeconds / 5) + 3; // Start from phase 3, change every 5 seconds
+  const phase = providedPhase ?? calculatedPhase;
+  
+  // Calculate dynamic hue based on time if not provided  
+  const calculatedHue = interpolate(frame, [0, durationInFrames], [220, 320]);
+  const hue = providedHue ?? calculatedHue;
+
   const emojis = ["🎵", "🎶", "🎤", "🎸", "🥁", "🎹", "🎺", "🎷", "🌟", "⚡", "💫", "🔥"];
   const [currentEmoji, setCurrentEmoji] = React.useState(0);
-  const frame = useCurrentFrame();
 
-  const { isOnBeat } = useAudioMarkers({ audioSrc });
+  const { isOnBeat, beatProgress } = useAudioMarkers({ audioSrc });
 
   React.useEffect(() => {
     if (isOnBeat) {
@@ -472,15 +488,174 @@ export const EmojiRhythm: React.FC<{
     }
   }, [isOnBeat, emojis.length]);
 
-  // Create multiple emojis for higher phases
-  const emojiCount = Math.min(phase - 2, 4);
+  // For standalone use, ensure we have at least some emojis showing
+  const emojiCount = Math.max(Math.min(phase - 2, 4), 2); // At least 2 emojis
+  
   const positions = [
-    { top: "10%", left: "10%" },
-    { top: "10%", right: "10%" },
-    { bottom: "20%", left: "10%" },
-    { bottom: "20%", right: "10%" },
+    { top: "15%", left: "15%" },
+    { top: "15%", right: "15%" },
+    { bottom: "25%", left: "15%" },
+    { bottom: "25%", right: "15%" },
   ];
 
+  // When used standalone, add a central animated emoji and background
+  const showCentralEmoji = !providedPhase; // Only when used standalone
+
+  // Dynamic background colors for standalone mode
+  const bgHue = interpolate(beatProgress, [0, 1], [hue, hue + 30]);
+  const bgLightness = 8 + (isOnBeat ? 12 : 0);
+
+  const standaloneContent = (
+    <ThemeProvider theme={createTheme({ palette: { mode: "dark" }})}>
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(circle at 50% 50%, 
+            hsl(${bgHue}, 70%, ${bgLightness}%) 0%,
+            hsl(${bgHue + 40}, 60%, 5%) 50%,
+            hsl(${bgHue + 80}, 50%, 3%) 100%)`,
+        }}
+      >
+        {/* Title for standalone mode */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "10%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            color: `hsl(${hue + 180}, 80%, 80%)`,
+            fontFamily: "monospace",
+            fontSize: "2rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            opacity: 0.8,
+            textShadow: `0 0 20px hsl(${hue + 180}, 80%, 60%)`,
+          }}
+        >
+          EMOJI RHYTHM FUN
+        </Box>
+
+        {/* Beat indicator bar */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "10%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "60%",
+            height: 8,
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            borderRadius: 4,
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: `${beatProgress * 100}%`,
+              backgroundColor: `hsl(${hue}, 70%, ${isOnBeat ? 70 : 50}%)`,
+              borderRadius: 4,
+              boxShadow: `0 0 10px hsl(${hue}, 70%, 50%)`,
+            }}
+          />
+        </Box>
+
+        {/* Central emoji */}
+        <Typography
+          variant="h1"
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            fontSize: interpolate(frame % 60, [0, 30, 60], [100, 140, 100]),
+            animation: isOnBeat ? "pulse 0.3s ease-out" : "none",
+            filter: `hue-rotate(${hue % 360}deg) brightness(1.3)`,
+            textShadow: `0 0 40px hsl(${hue}, 90%, 70%)`,
+            zIndex: 15,
+          }}
+        >
+          {emojis[currentEmoji]}
+        </Typography>
+
+        {/* Corner emojis */}
+        {Array.from({ length: emojiCount }, (_, i) => (
+          <Typography
+            key={i}
+            variant="h1"
+            sx={{
+              position: "absolute",
+              ...positions[i],
+              fontSize: interpolate(phase, [3, 5], [64, 96]),
+              animation: isOnBeat ? "bounce 0.3s ease-out" : "none",
+              filter: `hue-rotate(${(hue + i * 60) % 360}deg)`,
+              transform: `rotate(${Math.sin(frame * 0.1 + i) * 15}deg) scale(${interpolate(frame % 90, [0, 45, 90], [0.8, 1.2, 0.8])})`,
+              textShadow: `0 0 20px hsl(${(hue + i * 60) % 360}, 80%, 50%)`,
+              zIndex: 10,
+              opacity: interpolate(frame % 120, [0, 60, 120], [0.7, 1, 0.7]),
+            }}
+          >
+            {emojis[(currentEmoji + i) % emojis.length]}
+          </Typography>
+        ))}
+
+        {/* Floating background emojis */}
+        {Array.from({ length: 8 }, (_, i) => (
+          <Typography
+            key={`bg-${i}`}
+            variant="h2"
+            sx={{
+              position: "absolute",
+              top: `${15 + (i * 8) % 70}%`,
+              left: `${5 + (i * 12) % 90}%`,
+              fontSize: interpolate(i % 3, [0, 2], [30, 50]),
+              opacity: 0.2,
+              filter: `hue-rotate(${(hue + i * 40) % 360}deg)`,
+              transform: `
+                translateY(${Math.sin(frame * 0.04 + i * 1.5) * 30}px)
+                rotate(${Math.cos(frame * 0.03 + i * 0.9) * 25}deg)
+                scale(${interpolate(frame % 180, [0, 90, 180], [0.6, 1.1, 0.6])})
+              `,
+              animation: isOnBeat && i % 3 === frame % 3 ? "fadeIn 0.5s ease-out" : "none",
+              zIndex: 1,
+            }}
+          >
+            {emojis[(currentEmoji + i + 4) % emojis.length]}
+          </Typography>
+        ))}
+
+        <style>
+          {`
+            @keyframes pulse {
+              0% { transform: translate(-50%, -50%) scale(1); }
+              50% { transform: translate(-50%, -50%) scale(1.4); }
+              100% { transform: translate(-50%, -50%) scale(1); }
+            }
+            
+            @keyframes bounce {
+              0% { transform: scale(1) rotate(0deg); }
+              50% { transform: scale(1.3) rotate(5deg); }
+              100% { transform: scale(1) rotate(0deg); }
+            }
+            
+            @keyframes fadeIn {
+              from { opacity: 0.1; transform: scale(0.8); }
+              to { opacity: 0.4; transform: scale(1.2); }
+            }
+          `}
+        </style>
+      </AbsoluteFill>
+    </ThemeProvider>
+  );
+
+  // If used standalone, return full composition with background
+  if (showCentralEmoji) {
+    return standaloneContent;
+  }
+
+  // Otherwise, return just the positioned emojis for use within other compositions
   return (
     <>
       {Array.from({ length: emojiCount }, (_, i) => (
@@ -493,9 +668,10 @@ export const EmojiRhythm: React.FC<{
             fontSize: interpolate(phase, [3, 5], [64, 96]),
             animation: isOnBeat ? "bounce 0.3s ease-out" : "none",
             filter: `hue-rotate(${(hue + i * 60) % 360}deg)`,
-            transform: `rotate(${Math.sin(frame * 0.1 + i) * 10}deg)`,
-            textShadow: `0 0 20px hsl(${hue + i * 60}, 80%, 50%)`,
+            transform: `rotate(${Math.sin(frame * 0.1 + i) * 15}deg) scale(${interpolate(frame % 90, [0, 45, 90], [0.8, 1.2, 0.8])})`,
+            textShadow: `0 0 20px hsl(${(hue + i * 60) % 360}, 80%, 50%)`,
             zIndex: 10,
+            opacity: interpolate(frame % 120, [0, 60, 120], [0.7, 1, 0.7]),
           }}
         >
           {emojis[(currentEmoji + i) % emojis.length]}
