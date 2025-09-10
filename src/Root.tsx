@@ -14,6 +14,7 @@ import {PythonManimTutorial, ReactComponentTutorial} from './compositions/Instru
 import {PythonManimTutorial as AdvancedPythonTutorial} from './compositions/Instructional/PythonManimTutorial';
 import {ReactComponentTutorial as ModernReactTutorial} from './compositions/Instructional/ReactComponentTutorial';
 import {AudioTriggeredContent, RhythmVisualization, EmojiRhythm} from './compositions/AudioSync';
+import {ManimShowcase} from './compositions/ManimShowcase';
 import {z} from 'zod';
 
 // Each <Composition> is an entry in the sidebar!
@@ -349,6 +350,63 @@ Welcome to coding!`,
 				height={1080}
 				schema={z.object({})}
 				defaultProps={{}}
+			/>
+			{/* Manim Animation Gallery - Browse and integrate Manim videos */}
+			<Composition
+				id="ManimShowcase-Gallery"
+				component={() => (
+					<ManimShowcase
+						columns={3}
+						showSearch={true}
+						showFilters={true}
+						autoplay={false}
+					/>
+				)}
+				durationInFrames={1800} // 60 seconds for gallery exploration
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={z.object({
+					columns: z.number().min(1).max(6).optional(),
+					showSearch: z.boolean().optional(),
+					showFilters: z.boolean().optional(),
+					autoplay: z.boolean().optional(),
+					defaultCategory: z.enum(['geometry', 'algebra', 'calculus', 'trigonometry', 'physics', 'general']).optional(),
+				})}
+				defaultProps={{
+					columns: 3,
+					showSearch: true,
+					showFilters: true,
+					autoplay: false,
+				}}
+			/>
+			{/* Manim Showcase - Geometry Focus */}
+			<Composition
+				id="ManimShowcase-Geometry"
+				component={() => (
+					<ManimShowcase
+						columns={2}
+						defaultCategory="geometry" as any
+						showSearch={false}
+						showFilters={false}
+					/>
+				)}
+				durationInFrames={900} // 30 seconds for focused geometry showcase
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={z.object({
+					columns: z.number().min(1).max(6).optional(),
+					showSearch: z.boolean().optional(),
+					showFilters: z.boolean().optional(),
+					defaultCategory: z.enum(['geometry', 'algebra', 'calculus', 'trigonometry', 'physics', 'general']).optional(),
+				})}
+				defaultProps={{
+					columns: 2,
+					showSearch: false,
+					showFilters: false,
+					defaultCategory: "geometry" as any,
+				}}
 			/>
 		</>
 	);
