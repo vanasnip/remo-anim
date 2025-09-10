@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { spring, useCurrentFrame, useVideoConfig, interpolate, Video } from 'remotion';
+import { spring, useCurrentFrame, useVideoConfig, interpolate, OffthreadVideo, staticFile } from 'remotion';
 import { VideoPreviewProps, ManimCategory } from '../types';
 
 /**
@@ -25,6 +25,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [showCodePreview, setShowCodePreview] = useState(showCode);
   const [isIntegrating, setIsIntegrating] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [showFallback, setShowFallback] = useState(false);
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -255,9 +257,9 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
         {/* Video Player */}
         <div style={videoContainerStyles}>
           <div style={videoPlayerStyles}>
-            {isVideoLoaded ? (
-              <Video
-                src={`/assets/manim/${video.filename}`}
+            {isVideoLoaded && !showFallback ? (
+              <OffthreadVideo
+                src={staticFile(`assets/manim/${video.filename}`)}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -265,6 +267,11 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 }}
                 loop
                 muted
+                onError={(error) => {
+                  console.error('Video loading error:', error);
+                  setVideoError(`Failed to load video: ${error.message || 'Unknown error'}`);
+                  setShowFallback(true);
+                }}
               />
             ) : (
               <div style={{
@@ -275,45 +282,167 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 color: '#666',
                 gap: '16px',
               }}>
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  backgroundColor: categoryColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '32px',
-                }}>
-                  ▶
-                </div>
-                <div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
-                    {video.title}
-                  </div>
-                  <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                    Click to load video preview
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsVideoLoaded(true)}
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: categoryColor,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Load Video
-                </button>
+                {videoError ? (
+                  // Error fallback
+                  <>
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      backgroundColor: '#e74c3c',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '32px',
+                    }}>
+                      ⚠
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px', color: '#e74c3c' }}>
+                        Video Load Error
+                      </div>
+                      <div style={{ fontSize: '14px', opacity: 0.8, textAlign: 'center', maxWidth: '300px' }}>
+                        {videoError}
+                      </div>
+                      <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '8px', fontFamily: 'monospace' }}>
+                        File: {video.filename}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => {
+                          setVideoError(null);
+                          setShowFallback(false);
+                          setIsVideoLoaded(true);
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: categoryColor,
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Retry
+                      </button>
+                      <button
+                        onClick={() => {
+                          const videoPath = staticFile(`assets/manim/${video.filename}`);
+                          window.open(videoPath, '_blank');
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: '#666',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Open Direct
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  // Normal load state
+                  <>
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      backgroundColor: categoryColor,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '32px',
+                    }}>
+                      ▶
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
+                        {video.title}
+                      </div>
+                      <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                        Click to load video preview
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsVideoLoaded(true);
+                        setVideoError(null);
+                        setShowFallback(false);
+                      }}
+                      style={{
+                        padding: '12px 24px',
+                        backgroundColor: categoryColor,
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Load Video
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
+
+          {/* Video Status Info */}
+          {videoError && (
+            <div style={{
+              padding: '16px',
+              backgroundColor: '#fff5f5',
+              border: '1px solid #fed7d7',
+              borderRadius: '8px',
+              marginBottom: '16px',
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#e53e3e',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                <span>⚠️</span>
+                Video Loading Issue
+              </div>
+              <div style={{
+                fontSize: '13px',
+                color: '#742a2a',
+                lineHeight: '1.4',
+                marginBottom: '12px',
+              }}>
+                {videoError}
+              </div>
+              <div style={{
+                fontSize: '12px',
+                color: '#742a2a',
+                backgroundColor: '#fed7d7',
+                padding: '8px',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+              }}>
+                <strong>Troubleshooting Tips:</strong><br />
+                • Check if the video file exists at: /public/assets/manim/{video.filename}<br />
+                • Verify video format is supported (MP4 recommended)<br />
+                • Try the "Open Direct" button to test the file URL<br />
+                • Check browser console for additional error details
+              </div>
+            </div>
+          )}
 
           {/* Metadata Grid */}
           <div style={metadataStyles}>
@@ -339,8 +468,22 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               <label style={{ fontSize: '12px', fontWeight: '600', color: '#666', textTransform: 'uppercase' }}>
                 File
               </label>
-              <div style={{ fontSize: '14px', color: '#333', marginTop: '4px', fontFamily: 'monospace' }}>
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#333', 
+                marginTop: '4px', 
+                fontFamily: 'monospace',
+                wordBreak: 'break-all'
+              }}>
                 {video.filename}
+              </div>
+              <div style={{
+                fontSize: '11px',
+                color: '#666',
+                marginTop: '4px',
+                fontFamily: 'monospace'
+              }}>
+                Path: /public/assets/manim/{video.filename}
               </div>
             </div>
             
