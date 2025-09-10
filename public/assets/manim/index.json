@@ -1,0 +1,29 @@
+{
+  "videos": [
+    {
+      "filename": "CircleAreaDemo_480p15_20250902_222354.mp4",
+      "path": "/assets/manim/CircleAreaDemo_480p15_20250902_222354.mp4",
+      "size": 120328,
+      "modified": 1756848233.0101812
+    },
+    {
+      "filename": "SineWaveAnimation_480p15_20250902_220341.mp4",
+      "path": "/assets/manim/SineWaveAnimation_480p15_20250902_220341.mp4",
+      "size": 78228,
+      "modified": 1756847020.675291
+    },
+    {
+      "filename": "TestAnimation.mp4",
+      "path": "/assets/manim/TestAnimation.mp4",
+      "size": 47125,
+      "modified": 1756846742.3894043
+    },
+    {
+      "filename": "TestAnimation_480p15_20250902_220232.mp4",
+      "path": "/assets/manim/TestAnimation_480p15_20250902_220232.mp4",
+      "size": 47125,
+      "modified": 1756846693.8894293
+    }
+  ],
+  "updated_at": "2025-09-02T22:23:54.006295"
+}
