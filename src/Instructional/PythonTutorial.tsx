@@ -22,7 +22,7 @@ class SineWaveAnimation(Scene):
         highlights: [1, 4],
       },
       tipText: "Always inherit from Scene class for basic animations",
-      voiceOverAudio: "audio/step1.mp3",
+      // voiceOverAudio: "audio/step1.mp3", // Commented out to avoid missing audio file error
     },
     {
       title: "Create the Axes",
@@ -167,7 +167,7 @@ File ready at: media/videos/sine_wave/480p15/SineWaveAnimation.mp4`,
       subtitle="Learn to create beautiful mathematical visualizations"
       author="Tutorial Series"
       steps={tutorialSteps}
-      backgroundMusic="audio/background_tutorial.mp3"
+      // backgroundMusic="audio/background_tutorial.mp3" // Commented out to avoid missing audio file error
       theme={{
         primaryColor: "#2196f3",
         secondaryColor: "#64b5f6",

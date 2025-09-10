@@ -269,10 +269,10 @@ export const TutorialVideo: React.FC<TutorialVideoProps> = ({
         padding: 40,
       }}
     >
-      {/* Background Music */}
-      {backgroundMusic && (
+      {/* Background Music - Disabled to avoid missing audio file errors */}
+      {/* {backgroundMusic && (
         <Audio src={staticFile(backgroundMusic)} volume={0.1} />
-      )}
+      )} */
 
       {/* Header */}
       <Box
@@ -387,12 +387,12 @@ export const TutorialVideo: React.FC<TutorialVideoProps> = ({
                   </Alert>
                 )}
 
-                {/* Voice Over */}
-                {currentStep.voiceOverAudio && (
+                {/* Voice Over - Disabled to avoid missing audio file errors */}
+                {/* {currentStep.voiceOverAudio && (
                   <Sequence from={0}>
                     <Audio src={staticFile(currentStep.voiceOverAudio)} />
                   </Sequence>
-                )}
+                )} */}
               </Box>
             </Sequence>
           )}
