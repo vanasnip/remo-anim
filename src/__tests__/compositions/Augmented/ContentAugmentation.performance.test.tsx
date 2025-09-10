@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import {
   ContentAugmentation,
   type Annotation,
-} from "../../../compositions/Augmented/ContentAugmentation";
+} from "../../../Augmented/ContentAugmentation";
 import * as Remotion from "remotion";
 
 // Mock Remotion hooks

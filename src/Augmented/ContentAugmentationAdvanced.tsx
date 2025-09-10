@@ -29,7 +29,7 @@ import {
   generateTransitionCSS,
   generateVideoFilterChain,
   applyVideoProcessing,
-} from "../../utils/ffmpegIntegration";
+} from "../utils/ffmpegIntegration";
 
 const theme = createTheme({
   palette: {

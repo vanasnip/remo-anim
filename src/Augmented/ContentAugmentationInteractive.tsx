@@ -21,7 +21,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import EnhancedTimeline from "../../components/EnhancedTimeline";
+import EnhancedTimeline from "../components/EnhancedTimeline";
 import type { Annotation } from "./ContentAugmentation";
 
 const theme = createTheme({

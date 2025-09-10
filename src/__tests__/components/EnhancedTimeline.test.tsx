@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { EnhancedTimeline } from "../../components/EnhancedTimeline";
-import type { Annotation } from "../../compositions/Augmented/ContentAugmentation";
+import type { Annotation } from "../../Augmented/ContentAugmentation";
 import * as Remotion from "remotion";
 
 // Mock Remotion hooks

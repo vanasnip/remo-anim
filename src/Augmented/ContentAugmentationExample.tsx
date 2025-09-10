@@ -4,7 +4,7 @@ import { ContentAugmentation } from "./ContentAugmentation";
 import { ContentAugmentationAdvanced } from "./ContentAugmentationAdvanced";
 import { ContentAugmentationInteractive } from "./ContentAugmentationInteractive";
 import type { Annotation } from "./ContentAugmentation";
-import type { FFmpegAnnotation } from "../../utils/ffmpegIntegration";
+import type { FFmpegAnnotation } from "../utils/ffmpegIntegration";
 
 /**
  * Example annotations showcasing all overlay types and features
@@ -206,7 +206,7 @@ export const ContentAugmentationDemo: React.FC = () => {
         id="ContentAugmentation-Basic"
         component={() => (
           <ContentAugmentation
-            sourceVideo="sample-video.mp4"
+            sourceVideo="/assets/manim/TestAnimation.mp4"
             annotations={exampleAnnotations}
             showTimeline={true}
             enableZoomEffects={true}
@@ -223,7 +223,7 @@ export const ContentAugmentationDemo: React.FC = () => {
         id="ContentAugmentation-Advanced"
         component={() => (
           <ContentAugmentationAdvanced
-            sourceVideo="sample-video.mp4"
+            sourceVideo="/assets/manim/TestAnimation.mp4"
             annotations={advancedAnnotations}
             showTimeline={true}
             enableZoomEffects={true}
@@ -252,7 +252,7 @@ export const ContentAugmentationDemo: React.FC = () => {
         id="ContentAugmentation-Interactive"
         component={() => (
           <ContentAugmentationInteractive
-            sourceVideo="sample-video.mp4"
+            sourceVideo="/assets/manim/TestAnimation.mp4"
             annotations={exampleAnnotations}
             showTimeline={true}
             enableZoomEffects={true}

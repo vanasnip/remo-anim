@@ -4,6 +4,16 @@ import {Logo, myCompSchema2} from './HelloWorld/Logo';
 import {ProductPromo} from './compositions/ProductPromo';
 import {MathLesson} from './compositions/MathLesson';
 import {TransitionShowcase} from './compositions/TransitionShowcase';
+import {ContentAugmentation} from './Augmented/ContentAugmentation';
+import {ContentAugmentationAdvanced} from './Augmented/ContentAugmentationAdvanced';
+import {ContentAugmentationInteractive} from './Augmented/ContentAugmentationInteractive';
+import {exampleAnnotations, advancedAnnotations} from './Augmented/ContentAugmentationExample';
+import {VideoEffects} from './compositions/Effects/VideoEffects';
+import {TutorialVideo} from './compositions/Instructional/TutorialVideo';
+import {PythonManimTutorial, ReactComponentTutorial} from './compositions/Instructional/PythonTutorial';
+import {PythonManimTutorial as AdvancedPythonTutorial} from './compositions/Instructional/PythonManimTutorial';
+import {ReactComponentTutorial as ModernReactTutorial} from './compositions/Instructional/ReactComponentTutorial';
+import {AudioTriggeredContent, RhythmVisualization, EmojiRhythm} from './compositions/AudioSync';
 import {z} from 'zod';
 
 // Each <Composition> is an entry in the sidebar!
@@ -122,6 +132,238 @@ export const RemotionRoot: React.FC = () => {
 				fps={30}
 				width={1920}
 				height={1080}
+			/>
+			{/* Basic ContentAugmentation */}
+			<Composition
+				id="ContentAugmentation-Basic"
+				component={() => (
+					<ContentAugmentation
+						sourceVideo="/assets/manim/TestAnimation.mp4"
+						annotations={exampleAnnotations}
+						showTimeline={true}
+						enableZoomEffects={true}
+					/>
+				)}
+				durationInFrames={900} // 30 seconds
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			{/* Advanced ContentAugmentation with FFmpeg effects */}
+			<Composition
+				id="ContentAugmentation-Advanced"
+				component={() => (
+					<ContentAugmentationAdvanced
+						sourceVideo="/assets/manim/TestAnimation.mp4"
+						annotations={advancedAnnotations}
+						showTimeline={true}
+						enableZoomEffects={true}
+						globalVideoFilters={{
+							brightness: -0.05,
+							contrast: 1.1,
+							saturation: 1.05,
+							gamma: 0.95,
+						}}
+						transitionEffect={{
+							type: "fade",
+							duration: 30,
+							easing: "ease-in-out",
+						}}
+						enableRealTimeProcessing={true}
+					/>
+				)}
+				durationInFrames={900} // 30 seconds
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			{/* Interactive ContentAugmentation */}
+			<Composition
+				id="ContentAugmentation-Interactive"
+				component={() => (
+					<ContentAugmentationInteractive
+						sourceVideo="/assets/manim/TestAnimation.mp4"
+						annotations={exampleAnnotations}
+						showTimeline={true}
+						enableZoomEffects={true}
+						timelineHeight={100}
+						showAnnotationLabels={true}
+						showFrameNumbers={true}
+						enableInteractiveTimeline={true}
+						showAnnotationPreview={true}
+					/>
+				)}
+				durationInFrames={900} // 30 seconds
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			{/* Video Effects - 8 different visual effects showcase */}
+			<Composition
+				id="VideoEffects"
+				component={VideoEffects}
+				durationInFrames={540} // 18 seconds for 6 effects (90 frames each)
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={z.object({
+					sourceVideo: z.string().optional(),
+					effects: z.array(z.object({
+						type: z.enum(["blur", "pixelate", "chromatic", "vhs", "neon", "matrix", "split", "kaleidoscope"]),
+						intensity: z.number().min(0).max(1),
+						startFrame: z.number(),
+						endFrame: z.number(),
+					})).optional(),
+					showEffectName: z.boolean().optional(),
+				})}
+				defaultProps={{
+					sourceVideo: "/assets/manim/CircleAreaDemo_480p15_20250902_222354.mp4",
+					effects: [
+						{ type: "blur" as const, intensity: 0.5, startFrame: 0, endFrame: 90 },
+						{ type: "chromatic" as const, intensity: 0.7, startFrame: 90, endFrame: 180 },
+						{ type: "vhs" as const, intensity: 0.8, startFrame: 180, endFrame: 270 },
+						{ type: "neon" as const, intensity: 0.6, startFrame: 270, endFrame: 360 },
+						{ type: "matrix" as const, intensity: 0.9, startFrame: 360, endFrame: 450 },
+						{ type: "split" as const, intensity: 0.5, startFrame: 450, endFrame: 540 },
+					],
+					showEffectName: true,
+				}}
+			/>
+			{/* Tutorial Components - Instructional Video Templates */}
+			<Composition
+				id="PythonManimTutorial-Basic"
+				component={PythonManimTutorial}
+				durationInFrames={2130} // ~71 seconds for all tutorial steps
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="ReactComponentTutorial-Basic"
+				component={ReactComponentTutorial}
+				durationInFrames={1140} // ~38 seconds for all tutorial steps
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="PythonManimTutorial-Advanced"
+				component={AdvancedPythonTutorial}
+				durationInFrames={1260} // ~42 seconds for all tutorial steps
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="ReactComponentTutorial-Modern"
+				component={ModernReactTutorial}
+				durationInFrames={1350} // ~45 seconds for all tutorial sections
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			{/* Custom Tutorial Video Template - Use for creating custom tutorials */}
+			<Composition
+				id="TutorialVideo-Template"
+				component={() => (
+					<TutorialVideo
+						title="Custom Tutorial Title"
+						subtitle="Learn something amazing"
+						author="Tutorial Creator"
+						steps={[
+							{
+								title: "Getting Started",
+								description: "Welcome to this tutorial. We'll learn something awesome together.",
+								duration: 180, // 6 seconds
+								codeSnippet: {
+									language: "javascript",
+									code: `console.log("Hello, world!");
+// Your first line of code
+const greeting = "Welcome to coding!";`,
+									filename: "hello.js",
+									highlights: [1, 3],
+								},
+								tipText: "This is just the beginning of your coding journey",
+							},
+							{
+								title: "Next Steps",
+								description: "Now that you're familiar with the basics, let's explore more advanced concepts.",
+								duration: 240, // 8 seconds
+								terminalOutput: `$ node hello.js
+Hello, world!
+Welcome to coding!`,
+								keyboardShortcut: "Ctrl+Enter to run code",
+							},
+						]}
+						theme={{
+							primaryColor: "#2196f3",
+							secondaryColor: "#64b5f6",
+							codeTheme: "dark",
+						}}
+					/>
+				)}
+				durationInFrames={420} // 14 seconds total
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			{/* AudioSync compositions - Audio-synchronized visual effects */}
+			<Composition
+				id="AudioTriggeredContent-Basic"
+				component={() => (
+					<AudioTriggeredContent 
+						audioSrc="audio/sample-beat.mp3"
+						audioStartFrame={0}
+					/>
+				)}
+				durationInFrames={1800} // 60 seconds for full audio experience
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={z.object({
+					audioSrc: z.string(),
+					audioStartFrame: z.number().optional(),
+				})}
+				defaultProps={{
+					audioSrc: "audio/sample-beat.mp3",
+					audioStartFrame: 0,
+				}}
+			/>
+			<Composition
+				id="RhythmVisualization-Full"
+				component={() => (
+					<RhythmVisualization 
+						audioSrc="audio/sample-beat.mp3"
+					/>
+				)}
+				durationInFrames={1800} // 60 seconds for full rhythm visualization
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={z.object({
+					audioSrc: z.string().optional(),
+				})}
+				defaultProps={{
+					audioSrc: "audio/sample-beat.mp3",
+				}}
+			/>
+			<Composition
+				id="EmojiRhythm-Fun"
+				component={() => (
+					<EmojiRhythm 
+						audioSrc="audio/sample-beat.mp3"
+					/>
+				)}
+				durationInFrames={900} // 30 seconds for emoji rhythm demo
+				fps={30}
+				width={1920}
+				height={1080}
+				schema={z.object({
+					audioSrc: z.string(),
+				})}
+				defaultProps={{
+					audioSrc: "audio/sample-beat.mp3",
+				}}
 			/>
 		</>
 	);
