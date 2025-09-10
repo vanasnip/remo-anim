@@ -6,8 +6,6 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Audio,
-  staticFile,
   interpolate,
   spring,
   useCurrentFrame,
@@ -18,7 +16,7 @@ import { useAudioMarkers, useBeats } from "../../audio/hooks/useAudioMarkers";
 import type { TimelineMarker } from "../../audio/types";
 
 interface AudioTriggeredContentProps {
-  audioSrc: string;
+  audioSrc?: string; // Optional - uses synthetic audio by default
   audioStartFrame?: number;
 }
 
@@ -26,7 +24,7 @@ interface AudioTriggeredContentProps {
  * Main component demonstrating flexible audio-triggered content
  */
 export const AudioTriggeredContent: React.FC<AudioTriggeredContentProps> = ({
-  audioSrc,
+  audioSrc = "synthetic", // Default to synthetic audio
   audioStartFrame = 0,
 }) => {
   const frame = useCurrentFrame();
@@ -84,8 +82,7 @@ export const AudioTriggeredContent: React.FC<AudioTriggeredContentProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#0a0a0a" }}>
-      {/* Audio element */}
-      <Audio src={staticFile(audioSrc)} startFrom={audioStartFrame} />
+      {/* No audio element - pure visual beat demonstration */}
 
       {/* BPM Display */}
       {bpm && (
@@ -239,7 +236,7 @@ const MarkerVisual: React.FC<{ marker: TimelineMarker; index: number }> = ({
 /**
  * Simplified beat-only visualization
  */
-export const BeatPulse: React.FC<{ audioSrc: string }> = ({ audioSrc }) => {
+export const BeatPulse: React.FC<{ audioSrc?: string }> = ({ audioSrc = "synthetic" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { isOnBeat, beatProgress } = useBeats(audioSrc);
@@ -271,9 +268,9 @@ export const BeatPulse: React.FC<{ audioSrc: string }> = ({ audioSrc }) => {
  * Text that appears on rhythm
  */
 export const RhythmText: React.FC<{
-  audioSrc: string;
+  audioSrc?: string;
   words: string[];
-}> = ({ audioSrc, words }) => {
+}> = ({ audioSrc = "synthetic", words }) => {
   const { currentMarkers } = useAudioMarkers({ audioSrc });
   const [wordIndex, setWordIndex] = React.useState(0);
 
@@ -303,9 +300,9 @@ export const RhythmText: React.FC<{
  * Dynamic content renderer using render props pattern
  */
 export const AudioTriggers: React.FC<{
-  audioSrc: string;
+  audioSrc?: string;
   children: (markers: TimelineMarker[]) => React.ReactNode;
-}> = ({ audioSrc, children }) => {
+}> = ({ audioSrc = "synthetic", children }) => {
   const { currentMarkers, isLoading } = useAudioMarkers({ audioSrc });
 
   if (isLoading) return null;

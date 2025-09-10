@@ -6,8 +6,6 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Audio,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -31,14 +29,14 @@ const theme = createTheme({
 });
 
 interface RhythmVisualizationProps {
-  audioSrc?: string;
+  audioSrc?: string; // Optional - uses synthetic audio by default
 }
 
 /**
  * Main rhythm visualization composition
  */
 export const RhythmVisualization: React.FC<RhythmVisualizationProps> = ({
-  audioSrc = "audio/sample-beat.wav", // Default audio file
+  audioSrc = "synthetic", // Default to synthetic audio
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -64,8 +62,7 @@ export const RhythmVisualization: React.FC<RhythmVisualizationProps> = ({
           transition: "background 0.1s ease",
         }}
       >
-        {/* Audio element */}
-        <Audio src={staticFile(audioSrc)} />
+        {/* No audio element - pure visual rhythm demonstration */}
 
         {/* Header with BPM and frame info */}
         <Box
@@ -190,7 +187,7 @@ export const RhythmVisualization: React.FC<RhythmVisualizationProps> = ({
 /**
  * Grid of elements that pulse on beats
  */
-const RhythmGrid: React.FC<{ audioSrc: string }> = ({ audioSrc }) => {
+const RhythmGrid: React.FC<{ audioSrc?: string }> = ({ audioSrc = "synthetic" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { isOnBeat, currentMarkers } = useAudioMarkers({ audioSrc });
@@ -222,7 +219,7 @@ const RhythmGrid: React.FC<{ audioSrc: string }> = ({ audioSrc }) => {
         }
 
         return (
-          <Grid key={index} size={3}>
+          <Grid key={index} item xs={3}>
             <Box
               sx={{
                 width: "100%",
@@ -345,7 +342,7 @@ const DownbeatParticles: React.FC<{ frame: number; fps: number }> = ({
 /**
  * Example of emoji/icon triggers
  */
-export const EmojiRhythm: React.FC<{ audioSrc: string }> = ({ audioSrc }) => {
+export const EmojiRhythm: React.FC<{ audioSrc?: string }> = ({ audioSrc = "synthetic" }) => {
   const emojis = ["🎵", "🎶", "🎤", "🎸", "🥁", "🎹", "🎺", "🎷"];
   const [currentEmoji, setCurrentEmoji] = React.useState(0);
 

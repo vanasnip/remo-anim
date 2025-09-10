@@ -307,63 +307,48 @@ Welcome to coding!`,
 				width={1920}
 				height={1080}
 			/>
-			{/* AudioSync compositions - Audio-synchronized visual effects */}
+			{/* AudioSync compositions - Pure visual beat demonstrations */}
 			<Composition
 				id="AudioTriggeredContent-Basic"
 				component={() => (
 					<AudioTriggeredContent 
-						audioSrc="audio/sample-beat.wav"
 						audioStartFrame={0}
 					/>
 				)}
-				durationInFrames={1800} // 60 seconds for full audio experience
+				durationInFrames={1800} // 60 seconds for full visual experience
 				fps={30}
 				width={1920}
 				height={1080}
 				schema={z.object({
-					audioSrc: z.string(),
 					audioStartFrame: z.number().optional(),
 				})}
 				defaultProps={{
-					audioSrc: "audio/sample-beat.wav",
 					audioStartFrame: 0,
 				}}
 			/>
 			<Composition
 				id="RhythmVisualization-Full"
 				component={() => (
-					<RhythmVisualization 
-						audioSrc="audio/sample-beat.wav"
-					/>
+					<RhythmVisualization />
 				)}
 				durationInFrames={1800} // 60 seconds for full rhythm visualization
 				fps={30}
 				width={1920}
 				height={1080}
-				schema={z.object({
-					audioSrc: z.string().optional(),
-				})}
-				defaultProps={{
-					audioSrc: "audio/sample-beat.wav",
-				}}
+				schema={z.object({})}
+				defaultProps={{}}
 			/>
 			<Composition
 				id="EmojiRhythm-Fun"
 				component={() => (
-					<EmojiRhythm 
-						audioSrc="audio/sample-beat.wav"
-					/>
+					<EmojiRhythm />
 				)}
 				durationInFrames={900} // 30 seconds for emoji rhythm demo
 				fps={30}
 				width={1920}
 				height={1080}
-				schema={z.object({
-					audioSrc: z.string(),
-				})}
-				defaultProps={{
-					audioSrc: "audio/sample-beat.wav",
-				}}
+				schema={z.object({})}
+				defaultProps={{}}
 			/>
 		</>
 	);
