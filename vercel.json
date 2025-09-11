@@ -1,6 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "out",
+  "buildCommand": "cd remotion-app && npm install && npm run build",
+  "outputDirectory": "remotion-app/out",
+  "installCommand": "cd remotion-app && npm install",
   "framework": null,
   "rewrites": [
     {
