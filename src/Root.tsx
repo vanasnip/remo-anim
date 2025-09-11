@@ -16,10 +16,27 @@ import {ReactComponentTutorial as ModernReactTutorial} from './compositions/Inst
 import {AudioTriggeredContent, RhythmVisualization, EmojiRhythm} from './compositions/AudioSync';
 import {ManimShowcase} from './compositions/ManimShowcase';
 import {z} from 'zod';
+import React, {useEffect} from 'react';
+import performanceConfig from './config/performance.config';
+import AggressiveOptimizations from './utils/performance/aggressive-optimizations';
 
 // Each <Composition> is an entry in the sidebar!
 
 export const RemotionRoot: React.FC = () => {
+	// Initialize aggressive optimizations
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			// Log performance configuration
+			console.log('🚀 Remotion Performance Mode:', performanceConfig.mode);
+			console.log('⚡ Active Optimizations:', performanceConfig.getActiveOptimizations());
+			
+			// Get optimization stats after initialization
+			const optimizer = AggressiveOptimizations.getInstance();
+			setTimeout(() => {
+				console.log('📊 Optimization Stats:', optimizer.getStats());
+			}, 1000);
+		}
+	}, []);
 	return (
 		<>
 			<Composition

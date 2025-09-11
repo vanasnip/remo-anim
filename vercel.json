@@ -30,8 +30,14 @@
   "env": {
     "ENABLE_LAZY_LOADING": "true",
     "ENABLE_VIRTUAL_SCROLL": "true",
-    "ENABLE_PREDICTIVE_LOADING": "false",
+    "ENABLE_PREDICTIVE_LOADING": "true",
     "ENABLE_MEMORY_POOLING": "true",
-    "PERFORMANCE_MODE": "staging"
+    "PERFORMANCE_MODE": "production",
+    "ENABLE_AGGRESSIVE_CACHING": "true",
+    "ENABLE_PRECONNECT": "true",
+    "ENABLE_PREFETCH": "true",
+    "ENABLE_WEBP_CONVERSION": "true",
+    "CHUNK_SIZE_LIMIT": "200",
+    "MAX_PARALLEL_REQUESTS": "6"
   }
 }
