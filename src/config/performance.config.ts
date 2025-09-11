@@ -3,25 +3,30 @@
  * Reads environment variables to control performance optimizations
  */
 
+// Default to production settings since Vercel env vars don't reach browser
+const isProduction = typeof window !== 'undefined' && 
+  (window.location.hostname === 'remotion-recovery.vercel.app' || 
+   window.location.hostname.includes('vercel.app'));
+
 export const performanceConfig = {
-  // Core optimizations
-  lazyLoading: process.env.ENABLE_LAZY_LOADING === 'true',
-  virtualScroll: process.env.ENABLE_VIRTUAL_SCROLL === 'true',
-  predictiveLoading: process.env.ENABLE_PREDICTIVE_LOADING === 'true',
-  memoryPooling: process.env.ENABLE_MEMORY_POOLING === 'true',
+  // Core optimizations - all enabled in production
+  lazyLoading: isProduction || process.env.ENABLE_LAZY_LOADING === 'true',
+  virtualScroll: isProduction || process.env.ENABLE_VIRTUAL_SCROLL === 'true',
+  predictiveLoading: isProduction || process.env.ENABLE_PREDICTIVE_LOADING === 'true',
+  memoryPooling: isProduction || process.env.ENABLE_MEMORY_POOLING === 'true',
   
-  // Aggressive optimizations
-  aggressiveCaching: process.env.ENABLE_AGGRESSIVE_CACHING === 'true',
-  preconnect: process.env.ENABLE_PRECONNECT === 'true',
-  prefetch: process.env.ENABLE_PREFETCH === 'true',
-  webpConversion: process.env.ENABLE_WEBP_CONVERSION === 'true',
+  // Aggressive optimizations - all enabled in production
+  aggressiveCaching: isProduction || process.env.ENABLE_AGGRESSIVE_CACHING === 'true',
+  preconnect: isProduction || process.env.ENABLE_PRECONNECT === 'true',
+  prefetch: isProduction || process.env.ENABLE_PREFETCH === 'true',
+  webpConversion: isProduction || process.env.ENABLE_WEBP_CONVERSION === 'true',
   
   // Performance tuning
   chunkSizeLimit: parseInt(process.env.CHUNK_SIZE_LIMIT || '200', 10),
   maxParallelRequests: parseInt(process.env.MAX_PARALLEL_REQUESTS || '6', 10),
   
-  // Performance mode
-  mode: process.env.PERFORMANCE_MODE || 'development',
+  // Performance mode - detect based on hostname
+  mode: isProduction ? 'production' : (process.env.PERFORMANCE_MODE || 'development'),
   
   // Helper methods
   isProduction: () => performanceConfig.mode === 'production',
