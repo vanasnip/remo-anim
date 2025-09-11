@@ -5,3 +5,12 @@ dist
 
 # Ignore the output video from Git but not videos you import into src/.
 out
+.vercel
+
+# Build output
+build/
+
+# Test artifacts
+production-test-results/
+test-results/
+playwright-report/
