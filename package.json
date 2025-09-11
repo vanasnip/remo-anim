@@ -26,6 +26,7 @@
     "@remotion/eslint-config-flat": "4.0.345",
     "@types/react": "19.0.0",
     "@types/web": "0.0.166",
+    "@playwright/test": "^1.48.0",
     "eslint": "9.19.0",
     "prettier": "3.6.0",
     "typescript": "5.8.2"
@@ -34,9 +35,24 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "test:performance": "playwright test tests/performance/",
+    "test:performance:ci": "playwright test tests/performance/ --reporter=json",
+    "test:performance:report": "playwright show-report performance-results/",
+    "test:baseline": "node scripts/performance/establish-baseline.js",
+    "test:regression": "node scripts/performance/detect-regressions.js"
   },
   "sideEffects": [
     "*.css"
-  ]
+  ],
+  "performance": {
+    "baselineFile": "performance-baselines/current.json",
+    "thresholds": {
+      "fcp": 2000,
+      "lcp": 3000,
+      "cls": 0.1,
+      "tti": 4000,
+      "memoryUsage": 50
+    }
+  }
 }

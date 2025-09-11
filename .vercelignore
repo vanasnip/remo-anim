@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+.env.local
+*.log
+test-*.js
+tests/
+scripts/performance/
+performance-baselines/
+performance-results/
+WEEK_*.md
+DEPLOYMENT_PLAN.md
+PERFORMANCE_TESTING_GUIDE.md
+PROJECT_ROADMAP.md
+remotion-app/
+.DS_Store

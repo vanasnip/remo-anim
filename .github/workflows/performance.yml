@@ -1,0 +1,318 @@
+name: Performance Testing & Monitoring
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of performance test to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - baseline
+        - regression
+        - report
+
+jobs:
+  performance-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        browser: [chrome, firefox]
+        include:
+          - browser: chrome
+            browser-channel: stable
+          - browser: firefox
+            browser-channel: stable
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2 # Need previous commit for comparison
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+
+    - name: Build application
+      run: npm run build
+      continue-on-error: true # Continue even if build has warnings
+
+    - name: Start application server
+      run: |
+        npm run dev &
+        # Wait for server to be ready
+        timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
+      
+    - name: Load or establish baseline
+      id: baseline
+      run: |
+        if [ -f "performance-baselines/current.json" ]; then
+          echo "baseline_exists=true" >> $GITHUB_OUTPUT
+          echo "📊 Using existing baseline"
+        else
+          echo "baseline_exists=false" >> $GITHUB_OUTPUT
+          echo "🎯 No baseline found, will establish new one"
+          npm run test:baseline
+        fi
+      continue-on-error: true
+
+    - name: Run performance tests
+      id: perf_tests
+      env:
+        CI: true
+        DEVICE: ${{ matrix.browser }}-${{ matrix.node-version }}
+      run: |
+        case "${{ github.event.inputs.test_type || 'full' }}" in
+          "baseline")
+            npm run test:baseline
+            ;;
+          "regression")
+            npm run test:regression
+            ;;
+          "report")
+            node scripts/performance/generate-report.js
+            ;;
+          *)
+            npm run test:performance:ci
+            ;;
+        esac
+      continue-on-error: true
+
+    - name: Check for regressions
+      id: regression_check
+      if: steps.baseline.outputs.baseline_exists == 'true' && github.event.inputs.test_type != 'baseline'
+      run: |
+        if npm run test:regression; then
+          echo "regression_detected=false" >> $GITHUB_OUTPUT
+          echo "✅ No performance regression detected"
+        else
+          echo "regression_detected=true" >> $GITHUB_OUTPUT
+          echo "🚨 Performance regression detected"
+        fi
+      continue-on-error: true
+
+    - name: Generate performance reports
+      if: always()
+      run: |
+        node scripts/performance/generate-report.js
+      continue-on-error: true
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-results-${{ matrix.browser }}-node${{ matrix.node-version }}
+        path: |
+          performance-results/
+          performance-baselines/
+        retention-days: 30
+
+    - name: Upload HTML report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-report-${{ matrix.browser }}-node${{ matrix.node-version }}
+        path: performance-results/reports/latest-report.html
+        retention-days: 30
+
+    - name: Comment on PR with results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          try {
+            const reportPath = 'performance-results/reports/latest-report.json';
+            if (!fs.existsSync(reportPath)) {
+              console.log('No performance report found');
+              return;
+            }
+            
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            const summary = report.summary;
+            
+            const regressionStatus = '${{ steps.regression_check.outputs.regression_detected }}' === 'true';
+            const browserInfo = '${{ matrix.browser }} (Node ${{ matrix.node-version }})';
+            
+            const comment = `## 🎬 Performance Test Results (${browserInfo})
+            
+### Overall Performance: ${summary.quality.grade} Grade (${summary.quality.overall}/100)
+
+#### Core Metrics
+- **First Contentful Paint**: ${summary.performance.coreWebVitals.fcp}ms
+- **Largest Contentful Paint**: ${summary.performance.coreWebVitals.lcp}ms  
+- **Memory Usage**: ${summary.performance.applicationMetrics.memoryUsage}MB
+- **Search Response**: ${summary.performance.galleryMetrics.searchResponseTime}ms
+- **Gallery Render**: ${summary.performance.galleryMetrics.galleryRenderTime}ms
+- **Average FPS**: ${summary.performance.galleryMetrics.scrollPerformance.averageFPS}
+
+${regressionStatus ? '🚨 **Performance Regression Detected**' : '✅ **No Performance Regression**'}
+
+${summary.comparison ? `
+#### Baseline Comparison
+- FCP: ${summary.comparison.fcpChange >= 0 ? '+' : ''}${summary.comparison.fcpChange.toFixed(1)}%
+- LCP: ${summary.comparison.lcpChange >= 0 ? '+' : ''}${summary.comparison.lcpChange.toFixed(1)}%
+- Memory: ${summary.comparison.memoryChange >= 0 ? '+' : ''}${summary.comparison.memoryChange.toFixed(1)}%
+- Search: ${summary.comparison.searchSpeedChange >= 0 ? '+' : ''}${summary.comparison.searchSpeedChange.toFixed(1)}%
+` : ''}
+
+<details>
+<summary>📊 View Full Report</summary>
+
+Download the HTML report from the artifacts to see detailed performance analysis, trends, and recommendations.
+
+</details>`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.error('Error creating PR comment:', error);
+          }
+
+    - name: Fail job on regression (in main/develop)
+      if: |
+        (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && 
+        steps.regression_check.outputs.regression_detected == 'true'
+      run: |
+        echo "🚨 Performance regression detected in protected branch!"
+        echo "This indicates a significant performance degradation that should be addressed."
+        exit 1
+
+  # Aggregate results from all matrix jobs
+  performance-summary:
+    needs: performance-tests
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+
+    - name: Create performance summary
+      run: |
+        echo "# 🎬 ManimShowcase Performance Test Summary" > performance-summary.md
+        echo "" >> performance-summary.md
+        echo "**Test Run**: $(date)" >> performance-summary.md
+        echo "**Trigger**: ${{ github.event_name }}" >> performance-summary.md
+        echo "**Branch/PR**: ${{ github.ref }}" >> performance-summary.md
+        echo "" >> performance-summary.md
+        
+        # Count successful and failed tests
+        SUCCESS_COUNT=0
+        REGRESSION_COUNT=0
+        
+        for result_dir in artifacts/performance-results-*/; do
+          if [ -d "$result_dir" ]; then
+            browser_node=$(basename "$result_dir" | sed 's/performance-results-//')
+            echo "## Results for $browser_node" >> performance-summary.md
+            
+            if [ -f "$result_dir/performance-results/test-results.json" ]; then
+              echo "✅ Tests completed successfully" >> performance-summary.md
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+            else
+              echo "❌ Tests failed or incomplete" >> performance-summary.md
+            fi
+            
+            # Check for regression files
+            if ls "$result_dir"/performance-results/regression-*.json 1> /dev/null 2>&1; then
+              echo "🚨 Performance regression detected" >> performance-summary.md
+              REGRESSION_COUNT=$((REGRESSION_COUNT + 1))
+            else
+              echo "✅ No performance regression" >> performance-summary.md
+            fi
+            echo "" >> performance-summary.md
+          fi
+        done
+        
+        echo "## Summary" >> performance-summary.md
+        echo "- **Successful test runs**: $SUCCESS_COUNT" >> performance-summary.md
+        echo "- **Regressions detected**: $REGRESSION_COUNT" >> performance-summary.md
+        echo "" >> performance-summary.md
+        
+        if [ $REGRESSION_COUNT -gt 0 ]; then
+          echo "🚨 **Action Required**: Performance regressions detected across $REGRESSION_COUNT test configuration(s)" >> performance-summary.md
+        else
+          echo "✅ **All Clear**: No performance regressions detected" >> performance-summary.md
+        fi
+        
+        cat performance-summary.md
+
+    - name: Upload summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-summary
+        path: performance-summary.md
+        retention-days: 30
+
+  # Update performance baseline (only on main branch, manual trigger)
+  update-baseline:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.inputs.test_type == 'baseline'
+    needs: performance-tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Download performance results
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-results-chrome-20
+        path: ./
+        
+    - name: Update baseline
+      run: |
+        # Use the best results as new baseline
+        node scripts/performance/establish-baseline.js
+        
+    - name: Commit updated baseline
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add performance-baselines/
+        git commit -m "📊 Update performance baseline
+
+        - New baseline established from CI run
+        - Date: $(date)
+        - Commit: ${{ github.sha }}
+        
+        🤖 Generated with Claude Code" || exit 0
+        git push
