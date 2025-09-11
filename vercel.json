@@ -33,8 +33,5 @@
     "ENABLE_PREDICTIVE_LOADING": "@enable_predictive_loading",
     "ENABLE_MEMORY_POOLING": "@enable_memory_pooling",
     "PERFORMANCE_MODE": "@performance_mode"
-  },
-  "buildEnv": {
-    "NODE_VERSION": "18"
   }
 }
