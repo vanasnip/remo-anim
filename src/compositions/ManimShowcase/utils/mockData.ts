@@ -8,42 +8,42 @@ import { ManimVideo, ManimCategory } from '../types';
 export const mockManimVideos: ManimVideo[] = [
   {
     id: 'sine-wave-animation',
-    filename: 'SineWaveAnimation_480p15_20250902_220341.mp4',
-    title: 'Sine Wave Animation',
-    description: 'A beautiful visualization of sine wave functions showing periodic motion and amplitude variations. Perfect for trigonometry lessons and wave physics demonstrations.',
+    filename: 'SineWaveAnimation.mp4',
+    title: 'Sine & Cosine Wave Transformation',
+    description: 'Beautiful visualization of sine and cosine wave functions with smooth transformations. Shows the relationship between sin(2x) and cos(2x) with animated transitions. Perfect for understanding trigonometric functions and their periodic nature.',
     category: ManimCategory.TRIGONOMETRY,
-    tags: ['sine', 'wave', 'trigonometry', 'periodic', 'function', 'animation'],
-    duration: 450, // 15 seconds at 30fps
+    tags: ['sine', 'cosine', 'wave', 'trigonometry', 'periodic', 'function', 'transformation'],
+    duration: 120, // ~4 seconds at 30fps (actual video duration)
     dimensions: {
-      width: 480,
-      height: 270,
+      width: 854,
+      height: 480,
     },
     createdAt: new Date('2025-09-02T22:03:41Z'),
-    manimScript: 'sine_wave_demo.py',
+    manimScript: 'sine_wave.py',
     parameters: {
       amplitude: 1,
-      frequency: 1,
+      frequency: 2,
       phase: 0,
-      color: '#3498db',
+      color: '#FFFF00',
     },
   },
   {
     id: 'circle-area-demo',
-    filename: 'CircleAreaDemo_480p15_20250902_222354.mp4',
-    title: 'Circle Area Calculation',
-    description: 'Interactive demonstration of how circle area is calculated using the formula πr². Shows the relationship between radius and area with dynamic visualization.',
+    filename: 'CircleAreaDemo.mp4',
+    title: 'Circle Area Formula Visualization',
+    description: 'Interactive demonstration of the circle area formula A = πr². Shows a blue circle with radius visualization, formula derivation, and a 360° rotation to emphasize the circular nature. Includes calculated area value for r=2.',
     category: ManimCategory.GEOMETRY,
-    tags: ['circle', 'area', 'geometry', 'radius', 'pi', 'formula'],
-    duration: 600, // 20 seconds at 30fps  
+    tags: ['circle', 'area', 'geometry', 'radius', 'pi', 'formula', 'rotation'],
+    duration: 180, // ~6 seconds at 30fps (actual video duration)
     dimensions: {
-      width: 480,
-      height: 270,
+      width: 854,
+      height: 480,
     },
     createdAt: new Date('2025-09-02T22:23:54Z'),
-    manimScript: 'circle_area_animation.py',
+    manimScript: 'circle_area.py',
     parameters: {
       radius: 2,
-      color: '#e74c3c',
+      color: '#0000FF',
       showFormula: true,
       animationSpeed: 'normal',
     },
@@ -51,41 +51,20 @@ export const mockManimVideos: ManimVideo[] = [
   {
     id: 'test-animation',
     filename: 'TestAnimation.mp4',
-    title: 'Basic Geometric Shapes',
-    description: 'Introduction to fundamental geometric shapes and their properties. Features squares, circles, triangles with smooth transformations and color transitions.',
-    category: ManimCategory.GEOMETRY,
-    tags: ['shapes', 'geometry', 'basic', 'introduction', 'transformations'],
-    duration: 360, // 12 seconds at 30fps
+    title: 'Basic Animation Test',
+    description: 'Simple test animation showcasing basic Manim capabilities. Features fundamental shapes and transformations to verify the animation pipeline is working correctly.',
+    category: ManimCategory.GENERAL,
+    tags: ['test', 'basic', 'shapes', 'animation', 'demo'],
+    duration: 90, // ~3 seconds at 30fps (actual video duration)
     dimensions: {
-      width: 480,
-      height: 270,
+      width: 854,
+      height: 480,
     },
-    createdAt: new Date('2025-09-02T22:02:32Z'),
-    manimScript: 'basic_shapes.py',
+    createdAt: new Date('2025-09-02T21:58:32Z'),
+    manimScript: 'test_animation.py',
     parameters: {
-      shapeCount: 3,
-      transitionSpeed: 'medium',
-      colors: ['#3498db', '#e74c3c', '#2ecc71'],
-    },
-  },
-  {
-    id: 'test-animation-alt',
-    filename: 'TestAnimation_480p15_20250902_220232.mp4',
-    title: 'Advanced Shape Morphing',
-    description: 'Advanced demonstration of shape morphing and geometric transformations. Shows complex animations between different polygon types with mathematical precision.',
-    category: ManimCategory.ALGEBRA,
-    tags: ['morphing', 'transformations', 'advanced', 'polygons', 'algebra'],
-    duration: 360, // 12 seconds at 30fps
-    dimensions: {
-      width: 480,
-      height: 270,
-    },
-    createdAt: new Date('2025-09-02T22:02:32Z'),
-    manimScript: 'advanced_morphing.py',
-    parameters: {
-      morphSteps: 10,
-      interpolationMethod: 'smooth',
-      symmetry: true,
+      testMode: true,
+      duration: 'short',
     },
   },
 ];

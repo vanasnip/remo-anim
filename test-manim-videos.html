@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manim Videos Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f0f23;
+            color: white;
+        }
+        h1 {
+            color: #4299e1;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .video-card {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .video-card h2 {
+            color: #48bb78;
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        .video-card p {
+            color: #a0aec0;
+            margin: 0 0 15px 0;
+            font-size: 0.9em;
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: black;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            text-align: center;
+        }
+        .status.success {
+            background: #2d3748;
+            color: #48bb78;
+            border: 1px solid #48bb78;
+        }
+        .status.error {
+            background: #2d3748;
+            color: #fc8181;
+            border: 1px solid #fc8181;
+        }
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 8px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        button:hover {
+            background: #3182ce;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎬 Manim Videos Test Gallery</h1>
+    
+    <div class="video-grid">
+        <div class="video-card">
+            <h2>1. Circle Area Formula</h2>
+            <p>Demonstrates A = πr² with visualization</p>
+            <video id="video1" controls>
+                <source src="public/assets/manim/CircleAreaDemo.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div id="status1" class="status">Loading...</div>
+            <div class="controls">
+                <button onclick="playVideo('video1')">Play</button>
+                <button onclick="pauseVideo('video1')">Pause</button>
+                <button onclick="rewindVideo('video1')">Rewind</button>
+            </div>
+        </div>
+
+        <div class="video-card">
+            <h2>2. Sine & Cosine Waves</h2>
+            <p>Shows sin(2x) transforming to cos(2x)</p>
+            <video id="video2" controls>
+                <source src="public/assets/manim/SineWaveAnimation.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div id="status2" class="status">Loading...</div>
+            <div class="controls">
+                <button onclick="playVideo('video2')">Play</button>
+                <button onclick="pauseVideo('video2')">Pause</button>
+                <button onclick="rewindVideo('video2')">Rewind</button>
+            </div>
+        </div>
+
+        <div class="video-card">
+            <h2>3. Test Animation</h2>
+            <p>Basic shapes and transformations</p>
+            <video id="video3" controls>
+                <source src="public/assets/manim/TestAnimation.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div id="status3" class="status">Loading...</div>
+            <div class="controls">
+                <button onclick="playVideo('video3')">Play</button>
+                <button onclick="pauseVideo('video3')">Pause</button>
+                <button onclick="rewindVideo('video3')">Rewind</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; color: #a0aec0;">
+        <p>Test page for Manim video integration</p>
+        <p>Videos should load and play when clicked</p>
+    </div>
+
+    <script>
+        // Check video loading status
+        document.addEventListener('DOMContentLoaded', function() {
+            for (let i = 1; i <= 3; i++) {
+                const video = document.getElementById('video' + i);
+                const status = document.getElementById('status' + i);
+                
+                video.addEventListener('loadeddata', function() {
+                    status.textContent = '✅ Video loaded successfully';
+                    status.className = 'status success';
+                });
+                
+                video.addEventListener('error', function(e) {
+                    status.textContent = '❌ Error loading video';
+                    status.className = 'status error';
+                    console.error('Video ' + i + ' error:', e);
+                });
+
+                video.addEventListener('play', function() {
+                    status.textContent = '▶️ Playing...';
+                    status.className = 'status success';
+                });
+
+                video.addEventListener('pause', function() {
+                    status.textContent = '⏸️ Paused';
+                    status.className = 'status success';
+                });
+            }
+        });
+
+        function playVideo(id) {
+            document.getElementById(id).play();
+        }
+
+        function pauseVideo(id) {
+            document.getElementById(id).pause();
+        }
+
+        function rewindVideo(id) {
+            const video = document.getElementById(id);
+            video.currentTime = 0;
+            video.play();
+        }
+
+        // Auto-play all videos in sequence
+        function playAllSequentially() {
+            const videos = ['video1', 'video2', 'video3'];
+            let currentIndex = 0;
+
+            function playNext() {
+                if (currentIndex < videos.length) {
+                    const video = document.getElementById(videos[currentIndex]);
+                    video.play();
+                    video.onended = function() {
+                        currentIndex++;
+                        playNext();
+                    };
+                }
+            }
+
+            playNext();
+        }
+    </script>
+</body>
+</html>
