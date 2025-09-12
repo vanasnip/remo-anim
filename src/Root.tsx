@@ -31,6 +31,10 @@ import {
 // Import Migrated Components
 import {ProductPromo} from './migrated/compositions/ProductPromo';
 import {ManimVideo, ManimComposition} from './migrated/compositions/ManimBridge';
+import {HelloWorld as MigratedHelloWorld} from './HelloWorld';
+
+// Test Migration Components
+import {TestMigration} from './compositions/TestMigration';
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -604,6 +608,16 @@ Welcome to coding!`,
 			
 			{/* === MIGRATED COMPONENTS === */}
 			
+			{/* Test Migration - Arc Component Validation */}
+			<Composition
+				id="Test-Migration"
+				component={TestMigration}
+				durationInFrames={150}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			
 			{/* ProductPromo - Migrated from legacy */}
 			<Composition
 				id="Migrated-ProductPromo"
@@ -619,6 +633,16 @@ Welcome to coding!`,
 				id="Migrated-ManimComposition"
 				component={ManimComposition}
 				durationInFrames={300}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			
+			{/* HelloWorld - Migrated Components */}
+			<Composition
+				id="HelloWorld-Migrated"
+				component={MigratedHelloWorld}
+				durationInFrames={150}
 				fps={30}
 				width={1920}
 				height={1080}
