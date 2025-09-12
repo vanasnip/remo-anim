@@ -28,6 +28,10 @@ import {
 	AnimationShowcaseTemplate,
 } from './templates';
 
+// Import Migrated Components
+import {ProductPromo} from './migrated/compositions/ProductPromo';
+import {ManimVideo, ManimComposition} from './migrated/compositions/ManimBridge';
+
 // Each <Composition> is an entry in the sidebar!
 
 export const RemotionRoot: React.FC = () => {
@@ -596,6 +600,28 @@ Welcome to coding!`,
 						credits: ["Created with Remotion", "Powered by React"],
 					},
 				}}
+			/>
+			
+			{/* === MIGRATED COMPONENTS === */}
+			
+			{/* ProductPromo - Migrated from legacy */}
+			<Composition
+				id="Migrated-ProductPromo"
+				component={ProductPromo}
+				durationInFrames={300}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			
+			{/* ManimComposition - Bridge for Manim videos */}
+			<Composition
+				id="Migrated-ManimComposition"
+				component={ManimComposition}
+				durationInFrames={300}
+				fps={30}
+				width={1920}
+				height={1080}
 			/>
 		</>
 	);
