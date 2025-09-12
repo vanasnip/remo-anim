@@ -146,29 +146,11 @@ export class AggressiveOptimizations {
 
   /**
    * Intercept image loading for WebP conversion
+   * DISABLED: Prototype manipulation causes React/Remotion issues
    */
   private interceptImageLoading(): void {
-    const originalImageSrc = Object.getOwnPropertyDescriptor(
-      HTMLImageElement.prototype,
-      'src'
-    );
-
-    if (originalImageSrc) {
-      Object.defineProperty(HTMLImageElement.prototype, 'src', {
-        set: function(value: string) {
-          // Convert to WebP if it's a supported format
-          if (value && performanceConfig.webpConversion) {
-            const webpUrl = AggressiveOptimizations.getInstance().convertToWebP(value);
-            originalImageSrc.set?.call(this, webpUrl);
-          } else {
-            originalImageSrc.set?.call(this, value);
-          }
-        },
-        get: function() {
-          return originalImageSrc.get?.call(this);
-        }
-      });
-    }
+    // Disabled prototype manipulation to prevent React reconciliation issues
+    console.log('⚡ WebP conversion available (manual conversion recommended)');
   }
 
   /**
@@ -193,43 +175,17 @@ export class AggressiveOptimizations {
    * Optimize chunk loading based on configuration
    */
   private optimizeChunkLoading(): void {
-    // Set chunk size limit for dynamic imports
-    if (window.__webpack_require__) {
-      console.log(`⚡ Chunk size limit set to ${performanceConfig.chunkSizeLimit}KB`);
-    }
+    // Log configuration without accessing webpack internals
+    console.log(`⚡ Chunk size limit configured: ${performanceConfig.chunkSizeLimit}KB`);
   }
 
   /**
    * Limit parallel requests
+   * DISABLED: Global fetch override can interfere with Remotion
    */
   private limitParallelRequests(): void {
-    // Implement request queue to limit parallel requests
-    const originalFetch = window.fetch;
-    let activeRequests = 0;
-    const requestQueue: Array<() => void> = [];
-
-    window.fetch = async function(...args) {
-      if (activeRequests >= performanceConfig.maxParallelRequests) {
-        await new Promise<void>(resolve => {
-          requestQueue.push(resolve);
-        });
-      }
-
-      activeRequests++;
-      
-      try {
-        const response = await originalFetch.apply(this, args);
-        return response;
-      } finally {
-        activeRequests--;
-        const nextRequest = requestQueue.shift();
-        if (nextRequest) {
-          nextRequest();
-        }
-      }
-    };
-
-    console.log(`⚡ Max parallel requests limited to ${performanceConfig.maxParallelRequests}`);
+    // Disabled global fetch override to prevent Remotion conflicts
+    console.log(`⚡ Request limiting available (use application-level queue instead)`);
   }
 
   /**

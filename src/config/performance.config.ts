@@ -10,23 +10,23 @@ const isProduction = typeof window !== 'undefined' &&
 
 export const performanceConfig = {
   // Core optimizations - all enabled in production
-  lazyLoading: isProduction || process.env.ENABLE_LAZY_LOADING === 'true',
-  virtualScroll: isProduction || process.env.ENABLE_VIRTUAL_SCROLL === 'true',
-  predictiveLoading: isProduction || process.env.ENABLE_PREDICTIVE_LOADING === 'true',
-  memoryPooling: isProduction || process.env.ENABLE_MEMORY_POOLING === 'true',
+  lazyLoading: isProduction,
+  virtualScroll: isProduction,
+  predictiveLoading: isProduction,
+  memoryPooling: isProduction,
   
   // Aggressive optimizations - all enabled in production
-  aggressiveCaching: isProduction || process.env.ENABLE_AGGRESSIVE_CACHING === 'true',
-  preconnect: isProduction || process.env.ENABLE_PRECONNECT === 'true',
-  prefetch: isProduction || process.env.ENABLE_PREFETCH === 'true',
-  webpConversion: isProduction || process.env.ENABLE_WEBP_CONVERSION === 'true',
+  aggressiveCaching: isProduction,
+  preconnect: isProduction,
+  prefetch: isProduction,
+  webpConversion: isProduction,
   
   // Performance tuning
-  chunkSizeLimit: parseInt(process.env.CHUNK_SIZE_LIMIT || '200', 10),
-  maxParallelRequests: parseInt(process.env.MAX_PARALLEL_REQUESTS || '6', 10),
+  chunkSizeLimit: 200,
+  maxParallelRequests: 6,
   
   // Performance mode - detect based on hostname
-  mode: isProduction ? 'production' : (process.env.PERFORMANCE_MODE || 'development'),
+  mode: isProduction ? 'production' : 'development',
   
   // Helper methods
   isProduction: () => performanceConfig.mode === 'production',
