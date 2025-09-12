@@ -1,0 +1,7 @@
+# This file is used internally by FFMPEG.
+file 'file:/Users/ivan/DEV_/anim/manim-output/videos/sine_wave/480p15/partial_movie_files/SineWaveAnimation/1185818338_2258878070_223132457.mp4'
+file 'file:/Users/ivan/DEV_/anim/manim-output/videos/sine_wave/480p15/partial_movie_files/SineWaveAnimation/624642324_936965191_3086439736.mp4'
+file 'file:/Users/ivan/DEV_/anim/manim-output/videos/sine_wave/480p15/partial_movie_files/SineWaveAnimation/624642324_3201849554_3118544178.mp4'
+file 'file:/Users/ivan/DEV_/anim/manim-output/videos/sine_wave/480p15/partial_movie_files/SineWaveAnimation/624642324_3070795381_1126593268.mp4'
+file 'file:/Users/ivan/DEV_/anim/manim-output/videos/sine_wave/480p15/partial_movie_files/SineWaveAnimation/624642324_1839128356_2417071324.mp4'
+file 'file:/Users/ivan/DEV_/anim/manim-output/videos/sine_wave/480p15/partial_movie_files/SineWaveAnimation/624642324_2361112_1493699732.mp4'
