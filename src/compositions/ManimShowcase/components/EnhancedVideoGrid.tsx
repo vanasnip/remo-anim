@@ -184,23 +184,24 @@ export const EnhancedVideoGrid: React.FC<VideoGridProps & {
     }
   }, [renderStartTime, videos.length, isFullyLoaded]);
 
-  // Staggered entrance animation
+  // Optimized entrance animation for 60 FPS performance
   const getCardAnimation = useCallback((index: number) => {
-    const delay = index * 3;
+    // Reduce stagger delay and animation duration for better performance
+    const delay = Math.min(index * 2, 20); // Cap max delay at 20 frames
     return {
       opacity: spring({
         frame: frame - delay,
         fps,
         from: 0,
         to: 1,
-        durationInFrames: 20,
+        durationInFrames: 12, // Reduced from 20 to 12 frames
       }),
       translateY: spring({
         frame: frame - delay,
         fps,
-        from: 20,
+        from: 10, // Reduced from 20 to 10px
         to: 0,
-        durationInFrames: 20,
+        durationInFrames: 12, // Reduced from 20 to 12 frames
       }),
     };
   }, [frame, fps]);

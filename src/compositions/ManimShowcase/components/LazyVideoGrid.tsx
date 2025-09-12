@@ -57,23 +57,23 @@ export const LazyVideoGrid: React.FC<VideoGridProps> = ({
     }
   }, [renderStartTime, videos.length, isFullyLoaded]);
 
-  // Staggered entrance animation for cards (preserved from original)
+  // Optimized entrance animation for 60 FPS performance
   const getCardAnimation = useCallback((index: number) => {
-    const delay = index * 3; // 3 frame delay between cards
+    const delay = Math.min(index * 2, 20); // Reduced delay and capped at 20 frames
     return {
       opacity: spring({
         frame: frame - delay,
         fps,
         from: 0,
         to: 1,
-        durationInFrames: 20,
+        durationInFrames: 12, // Reduced from 20 to 12 frames
       }),
       translateY: spring({
         frame: frame - delay,
         fps,
-        from: 20,
+        from: 10, // Reduced from 20 to 10px
         to: 0,
-        durationInFrames: 20,
+        durationInFrames: 12, // Reduced from 20 to 12 frames
       }),
     };
   }, [frame, fps]);

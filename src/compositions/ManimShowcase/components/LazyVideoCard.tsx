@@ -58,18 +58,19 @@ export const LazyVideoCard: React.FC<VideoCardProps> = ({
     }
   }, [renderStartTime, shouldRender]);
   
+  // Optimized animations for better performance
   const scale = spring({
     frame,
     fps,
     from: 1,
-    to: isSelected ? 1.05 : isHovered ? 1.02 : 1,
-    durationInFrames: 12,
+    to: isSelected ? 1.03 : isHovered ? 1.01 : 1, // Reduced scale values
+    durationInFrames: 8, // Reduced from 12 to 8 frames
   });
 
   const shadowIntensity = interpolate(
     frame,
-    [0, 8],
-    [isSelected ? 12 : isHovered ? 8 : 4, isSelected ? 24 : isHovered ? 16 : 8],
+    [0, 6], // Reduced from 8 to 6 frames
+    [isSelected ? 8 : isHovered ? 6 : 3, isSelected ? 16 : isHovered ? 12 : 6], // Reduced shadow values
     {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
@@ -81,15 +82,15 @@ export const LazyVideoCard: React.FC<VideoCardProps> = ({
     fps,
     from: 0,
     to: isHovered ? 1 : 0,
-    durationInFrames: 10,
+    durationInFrames: 6, // Reduced from 10 to 6 frames
   });
 
   const overlayOpacity = spring({
     frame,
     fps,
     from: 0,
-    to: isHovered ? 1 : 0,
-    durationInFrames: 15,
+    to: isHovered ? 0.8 : 0, // Reduced opacity for better performance
+    durationInFrames: 8, // Reduced from 15 to 8 frames
   });
 
   // Category colors for visual categorization (preserved)
