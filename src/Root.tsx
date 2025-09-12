@@ -20,6 +20,14 @@ import React, {useEffect} from 'react';
 import performanceConfig from './config/performance.config';
 import AggressiveOptimizations from './utils/performance/aggressive-optimizations';
 
+// Import Templates
+import {
+	EducationalTemplate,
+	TutorialTemplate,
+	ProductDemoTemplate,
+	AnimationShowcaseTemplate,
+} from './templates';
+
 // Each <Composition> is an entry in the sidebar!
 
 export const RemotionRoot: React.FC = () => {
@@ -423,6 +431,170 @@ Welcome to coding!`,
 					showSearch: false,
 					showFilters: false,
 					defaultCategory: "geometry" as any,
+				}}
+			/>
+			
+			{/* === COMPOSITION TEMPLATES === */}
+			
+			{/* Educational Content Template */}
+			<Composition
+				id="Template-Educational"
+				component={EducationalTemplate}
+				durationInFrames={600}
+				fps={30}
+				width={1920}
+				height={1080}
+				defaultProps={{
+					title: "Introduction to Calculus",
+					subtitle: "Understanding Derivatives",
+					sections: [
+						{
+							title: "What is a Derivative?",
+							content: "A derivative represents the rate of change of a function. It tells us how fast something is changing at any given point.",
+							duration: 150,
+						},
+						{
+							title: "The Power Rule",
+							content: "For f(x) = x^n, the derivative is f'(x) = n*x^(n-1). This is one of the most fundamental rules in calculus.",
+							duration: 150,
+						},
+					],
+					conclusion: {
+						title: "Key Takeaways",
+						points: [
+							"Derivatives measure rate of change",
+							"The power rule simplifies differentiation",
+							"Applications in physics and optimization",
+						],
+					},
+				}}
+			/>
+			
+			{/* Tutorial Video Template */}
+			<Composition
+				id="Template-Tutorial"
+				component={TutorialTemplate}
+				durationInFrames={900}
+				fps={30}
+				width={1920}
+				height={1080}
+				defaultProps={{
+					title: "React Hooks Tutorial",
+					subtitle: "Master useState and useEffect",
+					instructor: "John Doe",
+					steps: [
+						{
+							stepNumber: 1,
+							title: "Understanding useState",
+							description: "Learn how to manage component state",
+							code: {
+								language: "javascript",
+								snippet: "const [count, setCount] = useState(0);",
+							},
+							duration: 180,
+						},
+						{
+							stepNumber: 2,
+							title: "Working with useEffect",
+							description: "Handle side effects in functional components",
+							code: {
+								language: "javascript",
+								snippet: "useEffect(() => {\n  // Side effect code\n}, [dependencies]);",
+							},
+							duration: 180,
+						},
+					],
+					summary: {
+						title: "Summary",
+						keyTakeaways: [
+							"useState manages local state",
+							"useEffect handles side effects",
+							"Dependencies control re-renders",
+						],
+						nextSteps: [
+							"Explore useContext",
+							"Learn custom hooks",
+						],
+					},
+				}}
+			/>
+			
+			{/* Product Demo Template */}
+			<Composition
+				id="Template-ProductDemo"
+				component={ProductDemoTemplate}
+				durationInFrames={750}
+				fps={30}
+				width={1920}
+				height={1080}
+				defaultProps={{
+					productName: "VideoMaker Pro",
+					tagline: "Create Stunning Videos in Minutes",
+					features: [
+						{
+							icon: "🎬",
+							title: "Easy Video Editing",
+							description: "Intuitive drag-and-drop interface",
+							benefits: [
+								"No learning curve",
+								"Professional results",
+								"Save hours of work",
+							],
+							duration: 180,
+						},
+						{
+							icon: "✨",
+							title: "AI-Powered Effects",
+							description: "Automatic enhancement and filters",
+							benefits: [
+								"One-click improvements",
+								"Smart color grading",
+								"Background removal",
+							],
+							duration: 180,
+						},
+					],
+					cta: {
+						headline: "Start Creating Today",
+						action: "Get Started Free",
+						benefits: ["No credit card", "Unlimited exports", "Premium support"],
+					},
+				}}
+			/>
+			
+			{/* Animation Showcase Template */}
+			<Composition
+				id="Template-AnimationShowcase"
+				component={AnimationShowcaseTemplate}
+				durationInFrames={600}
+				fps={30}
+				width={1920}
+				height={1080}
+				defaultProps={{
+					title: "Animation Gallery",
+					subtitle: "Our Best Work",
+					animations: [
+						{
+							id: "anim1",
+							title: "Circle Area Demo",
+							category: "Mathematics",
+							video: "assets/manim/CircleAreaDemo.mp4",
+							duration: 180,
+						},
+						{
+							id: "anim2",
+							title: "Sine Wave",
+							category: "Trigonometry",
+							video: "assets/manim/SineWaveAnimation.mp4",
+							duration: 120,
+						},
+					],
+					layout: "single",
+					showTitles: true,
+					outro: {
+						message: "Thanks for Watching",
+						credits: ["Created with Remotion", "Powered by React"],
+					},
 				}}
 			/>
 		</>
