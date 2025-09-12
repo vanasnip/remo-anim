@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, interpolate } from 'remotion';
 import { ManimShowcaseProps, ManimVideo, GalleryState, ManimCategory } from './types';
 import { VideoGrid } from './components/VideoGrid';
@@ -194,23 +194,23 @@ export const ManimShowcase: React.FC<ManimShowcaseProps> = ({
   };
 
   // Event handlers
-  const handleVideoSelect = (video: ManimVideo) => {
+  const handleVideoSelect = useCallback((video: ManimVideo) => {
     setPreviewVideo(video);
     setShowPreview(true);
-  };
+  }, []);
 
-  const handleVideoHover = (video: ManimVideo | null) => {
+  const handleVideoHover = useCallback((video: ManimVideo | null) => {
     setHoveredVideo(video);
-  };
+  }, []);
 
-  const handleViewModeChange = (viewMode: 'grid' | 'list') => {
+  const handleViewModeChange = useCallback((viewMode: 'grid' | 'list') => {
     setGalleryState(prev => ({
       ...prev,
       viewMode,
     }));
-  };
+  }, []);
 
-  const handleSearch = (searchQuery: string) => {
+  const handleSearch = useCallback((searchQuery: string) => {
     // Week 3a - Performance monitoring for search
     const searchResult = performanceMonitor.measureSearchTime(() => {
       const newFilters = { ...galleryState.filters, searchQuery };
@@ -223,13 +223,13 @@ export const ManimShowcase: React.FC<ManimShowcaseProps> = ({
       filteredVideos: searchResult.result,
     }));
 
-    // Log search performance in development
-    if (process.env.NODE_ENV === 'development') {
+    // Log search performance in development (only for non-empty queries)
+    if (process.env.NODE_ENV === 'development' && searchQuery.trim()) {
       console.log(`🔍 Search "${searchQuery}": ${searchResult.duration.toFixed(2)}ms, ${searchResult.result.length} results`);
     }
-  };
+  }, [galleryState.filters, galleryState.videos]);
 
-  const handleCategoryFilter = (category: ManimCategory | null) => {
+  const handleCategoryFilter = useCallback((category: ManimCategory | null) => {
     const newFilters = { ...galleryState.filters, category };
     const filteredVideos = applyFilters(galleryState.videos, newFilters);
     
@@ -238,12 +238,12 @@ export const ManimShowcase: React.FC<ManimShowcaseProps> = ({
       filters: newFilters,
       filteredVideos,
     }));
-  };
+  }, [galleryState.filters, galleryState.videos]);
 
-  const handlePreviewClose = () => {
+  const handlePreviewClose = useCallback(() => {
     setShowPreview(false);
     setPreviewVideo(null);
-  };
+  }, []);
 
   const handleVideoIntegrate = async (video: ManimVideo) => {
     // Integration logic would go here

@@ -55,18 +55,18 @@ export class PerformanceSafeguards {
   private featureFlags: FeatureFlags;
   private violationHistory: number[] = [];
   private lastHealthCheck = 0;
-  private healthCheckInterval = 2000; // Check every 2 seconds
+  private healthCheckInterval = 5000; // Check every 5 seconds (reduced frequency)
   private isMonitoring = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
 
   private constructor() {
-    // Conservative defaults
+    // Conservative defaults (adjusted for modern browsers)
     this.budget = {
-      minFPS: 50, // Fallback if FPS drops below 50
-      maxMemoryMB: 100, // Fallback if memory exceeds 100MB
+      minFPS: 45, // Fallback if FPS drops below 45 (more reasonable)
+      maxMemoryMB: 150, // Fallback if memory exceeds 150MB (increased for modern apps)
       maxRenderTimeMs: 100, // Fallback if render takes >100ms
       maxSearchTimeMs: 50, // Fallback if search takes >50ms
-      fallbackAfterViolations: 3, // Fallback after 3 violations
+      fallbackAfterViolations: 5, // Fallback after 5 violations (more tolerant)
     };
 
     this.featureFlags = {

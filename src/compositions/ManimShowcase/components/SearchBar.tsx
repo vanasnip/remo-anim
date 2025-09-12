@@ -33,11 +33,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   // Debounce search to avoid excessive calls
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      onSearch(localQuery);
+      if (localQuery !== searchQuery) {
+        onSearch(localQuery);
+      }
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [localQuery, onSearch]);
+  }, [localQuery]); // Remove onSearch from dependencies to prevent infinite loops
 
   // Sync with external searchQuery changes
   useEffect(() => {
